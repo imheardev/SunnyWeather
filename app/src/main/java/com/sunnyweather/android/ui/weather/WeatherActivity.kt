@@ -1,22 +1,27 @@
 package com.sunnyweather.android.ui.weather
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.drawerlayout.widget.DrawerLayout
 
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.sunnyweather.android.R
 import com.sunnyweather.android.databinding.ActivityWeatherBinding
+import com.sunnyweather.android.logic.Repository.refreshWeather
 import com.sunnyweather.android.logic.model.Weather
 import com.sunnyweather.android.logic.model.getSky
 import java.text.SimpleDateFormat
@@ -59,35 +64,35 @@ class WeatherActivity : AppCompatActivity() {
                 Toast.makeText(this, "无法成功获取天气信息", Toast.LENGTH_SHORT).show()
                 result.exceptionOrNull()?.printStackTrace()
             }
-//            swipeRefresh.isRefreshing = false
+            binding.swipeRefresh.isRefreshing = false
         })
         viewModel.refreshWeather(viewModel.locationLng,viewModel.locationLat)
-//        swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
-//        refreshWeather()
-//        swipeRefresh.setOnRefreshListener {
-//            refreshWeather()
-//        }
-//        navBtn.setOnClickListener {
-//            drawerLayout.openDrawer(GravityCompat.START)
-//        }
-//        drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
-//            override fun onDrawerStateChanged(newState: Int) {}
-//
-//            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
-//
-//            override fun onDrawerOpened(drawerView: View) {}
-//
-//            override fun onDrawerClosed(drawerView: View) {
-//                val manager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//                manager.hideSoftInputFromWindow(drawerView.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
-//            }
-//        })
+        binding.swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
+        refreshWeather()
+        binding.swipeRefresh.setOnRefreshListener {
+            refreshWeather()
+        }
+        binding.now.navBtn.setOnClickListener {
+            binding.drawerLayout.openDrawer(GravityCompat.START)
+        }
+        binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerStateChanged(newState: Int) {}
+
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
+
+            override fun onDrawerOpened(drawerView: View) {}
+
+            override fun onDrawerClosed(drawerView: View) {
+                val manager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                manager.hideSoftInputFromWindow(drawerView.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+            }
+        })
     }
 
-//    fun refreshWeather() {
-//        viewModel.refreshWeather(viewModel.locationLng, viewModel.locationLat)
-//        swipeRefresh.isRefreshing = true
-//    }
+    fun refreshWeather() {
+        viewModel.refreshWeather(viewModel.locationLng, viewModel.locationLat)
+        binding.swipeRefresh.isRefreshing = true
+    }
 
     private fun showWeatherInfo(weather: Weather) {
         binding.now.placeName.text = viewModel.placeName
@@ -128,6 +133,11 @@ class WeatherActivity : AppCompatActivity() {
         binding.lifeIndex.ultravioletText.text = lifeIndex.ultraviolet[0].desc
         binding.lifeIndex.carWashingText.text = lifeIndex.carWashing[0].desc
         binding.weatherLayout.visibility = View.VISIBLE
+    }
+    /*关闭侧边菜单栏，用于PlaceAdapter.onCreateViewHolder.holder.itemView.setOnClickListener方法中，
+    不新建activity，仅修改activity.viewModel*/
+    fun closeDrawers(){
+        binding.drawerLayout.closeDrawers()
     }
 
 }

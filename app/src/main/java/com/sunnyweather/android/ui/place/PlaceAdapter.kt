@@ -1,13 +1,19 @@
 package com.sunnyweather.android.ui.place
 
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.sunnyweather.android.R
+import com.sunnyweather.android.SunnyWeatherApplication
+import com.sunnyweather.android.databinding.ActivityWeatherBinding
 import com.sunnyweather.android.databinding.PlaceItemBinding
 import com.sunnyweather.android.logic.model.Place
 import com.sunnyweather.android.ui.weather.WeatherActivity
@@ -37,16 +43,27 @@ RecyclerView.Adapter<PlaceAdapter.ViewHolder>(){
 //        return ViewHolder(binding)
         val holder = ViewHolder(binding)
         holder.itemView.setOnClickListener {
-            val position = holder.adapterPosition
+            val position = holder.getBindingAdapterPosition()
             val place = placeList[position]
-            val intent = Intent(parent.context, WeatherActivity::class.java).apply {
-                putExtra("location_lng", place.location.lng)
-                putExtra("location_lat", place.location.lat)
-                putExtra("place_name", place.name)
+            val activity = fragment.activity
+            if(activity is WeatherActivity){
+//                activity.findViewById<DrawerLayout>(R.id.drawerLayout).closeDrawers()
+                //用binding语法,因为binding属于私有属性,故在WeatherActivity中添加一个公共方法，逻辑为调用closeDrawers()方法
+                activity.closeDrawers()
+                activity.viewModel.locationLng = place.location.lng
+                activity.viewModel.locationLat = place.location.lat
+                activity.viewModel.placeName = place.name
+                activity.refreshWeather()
+            }else{
+                val intent = Intent(parent.context, WeatherActivity::class.java).apply {
+                    putExtra("location_lng", place.location.lng)
+                    putExtra("location_lat", place.location.lat)
+                    putExtra("place_name", place.name)
+                }
+                fragment.startActivity(intent)
+                fragment.activity?.finish()
             }
             fragment.viewModel.savePlace(place)
-            fragment.startActivity(intent)
-            fragment.activity?.finish()
         }
         return holder
     }

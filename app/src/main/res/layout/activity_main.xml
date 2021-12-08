@@ -7,7 +7,7 @@
     tools:context=".MainActivity">
 
     <fragment
-        android:id="@+id/palceFragment"
+        android:id="@+id/placeFragment"
         android:name="com.sunnyweather.android.ui.place.PlaceFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
